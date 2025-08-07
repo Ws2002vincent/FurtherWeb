@@ -1,0 +1,23 @@
+{
+  "name": "furtherweb",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ws2002vincent/FurtherWeb.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ws2002vincent/FurtherWeb/issues"
+  },
+  "homepage": "https://github.com/Ws2002vincent/FurtherWeb#readme",
+  "description": "",
+  "dependencies": {
+    "pug": "^3.0.3"
+  }
+}
