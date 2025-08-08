@@ -1,0 +1,41 @@
+.lobby-container {
+    width: 320px;
+    margin: 20px auto;
+    background: #e5e5e5;
+    padding: 20px;
+    border-radius: 10px;
+}
+.header {
+    background: #f8bcbc;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+.player-slots {
+    margin-bottom: 20px;
+}
+.player-slot {
+    background: #fff;
+    margin: 8px 0;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 1.2em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+button {
+    background: #f8bcbc;
+    border: none;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 1em;
+    cursor: pointer;
+}

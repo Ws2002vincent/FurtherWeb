@@ -1,14 +1,15 @@
 html 
     head 
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
         title Host Game
         link(rel="stylesheet", href="/styles/host.css")
     body
         h1 Host a New Game
         form(action="/host" method="post")
             div.form-group
-                label(for="game_name") Game Room Name:
+                label(for="game_name") Enter Game Room Name:
                 input(type="text" id="game_name" name="game_name" required)
             
             button(type="submit") Create Game Room
         
-        a(href="/dashboard") Back to Dashboard
+        button(type="button" onclick="window.location.href='/dashboard'") Back

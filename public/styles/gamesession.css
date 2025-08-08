@@ -1,0 +1,64 @@
+.game-container {
+    max-width: 400px;
+    margin: 20px auto;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    background-color: #ffb6b6;
+    padding: 15px;
+    border-radius: 10px 10px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.player-info {
+    flex-grow: 1;
+}
+
+.player-name {
+    margin: 0;
+    color: #333;
+}
+
+.score {
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+.main-content {
+    padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.scan-button {
+    width: 80%;
+    padding: 15px;
+    margin: 10px 0;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.end-button {
+    width: 80%;
+    padding: 15px;
+    margin: 10px 0;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}

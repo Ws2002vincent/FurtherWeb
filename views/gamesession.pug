@@ -1,0 +1,130 @@
+html
+    head
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        title Game Session
+        script(src="https://cdn.socket.io/4.7.4/socket.io.min.js")
+        script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js")
+        script(src="https://unpkg.com/html5-qrcode@2.3.8")
+        style.
+            .question-modal {
+                display: none;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0,0,0,0.2);
+                z-index: 1000;
+            }
+            .option-btn {
+                display: block;
+                margin: 10px 0;
+                padding: 10px;
+                width: 100%;
+            }
+    body
+        .game-container
+            h2 Game Session
+            p Player: #{username}
+            p Score: #[span#playerScore #{score}]
+            
+            button#scanBtn Scan Question Card
+            #reader
+
+            #questionModal.question-modal
+                h3#questionText
+                form#answerForm
+                    #options
+                    button#submitAnswer(type="submit") Submit Answer
+
+        script.
+            $(document).ready(function() {
+                let html5QrcodeScanner = null;
+                let currentCardId = null;
+
+                $('#scanBtn').click(function() {
+                    if (!html5QrcodeScanner) {
+                        const config = {
+                            fps: 10,
+                            qrbox: { width: 250, height: 250 }
+                        };
+
+                        html5QrcodeScanner = new Html5QrcodeScanner("reader", config);
+                        html5QrcodeScanner.render(onScanSuccess, onScanError);
+                    }
+                });
+
+                function onScanSuccess(decodedText) {
+                    currentCardId = decodedText;
+                    console.log('QR Code detected:', currentCardId);
+                    
+                    $.get(`/gamesession/question/${currentCardId}`, function(response) {
+                        if (response.success) {
+                            showQuestion(response.question);
+                            if (html5QrcodeScanner) {
+                                html5QrcodeScanner.clear();
+                                html5QrcodeScanner = null;
+                            }
+                        } else {
+                            alert('Invalid QR code');
+                        }
+                    });
+                }
+
+                function showQuestion(question) {
+                    $('#questionText').text(question.question_description);
+                    
+                    const options = {
+                        'A': question.option_a,
+                        'B': question.option_b,
+                        'C': question.option_c,
+                        'D': question.option_d
+                    };
+
+                    let optionsHtml = '';
+                    Object.entries(options).forEach(([key, value]) => {
+                        optionsHtml += `
+                            <div class="option">
+                                <input type="radio" name="answer" value="${key}" id="option${key}">
+                                <label for="option${key}">${key}: ${value}</label>
+                            </div>
+                        `;
+                    });
+                    
+                    $('#options').html(optionsHtml);
+                    $('#questionModal').show();
+                }
+
+                $('#answerForm').on('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const selectedAnswer = $('input[name="answer"]:checked').val();
+                    if (!selectedAnswer) {
+                        alert('Please select an answer');
+                        return;
+                    }
+
+                    $.post('/gamesession/answer', {
+                        cardId: currentCardId,
+                        sessionId: '#{sessionId}',
+                        answer: selectedAnswer
+                    }, function(response) {
+                        if (response.success) {
+                            $('#playerScore').text(response.newScore);
+                            alert(response.correct ? 
+                                `Correct! You earned ${response.scoreChange} points!` : 
+                                `Wrong! You lost 50 points!`);
+                            $('#questionModal').hide();
+                            $('#answerForm')[0].reset();
+                        } else {
+                            alert(response.error || 'Error submitting answer');
+                        }
+                    });
+                });
+
+                function onScanError(error) {
+                    console.warn('QR Code scan error:', error);
+                }
+            });
