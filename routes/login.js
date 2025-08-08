@@ -23,7 +23,7 @@ module.exports = (db) => {
                             req.session.username = username;
                             req.session.user_id = user.user_id;
                             req.session.user_name = user.username;
-                            return res.redirect('mainpage');
+                            return res.redirect('dashboard'); 
                         } else {
                             return res.render('login', { error: 'Incorrect Username and/or Password!' });
                         }

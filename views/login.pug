@@ -1,9 +1,11 @@
 html 
     head 
+        meta(name="viewport" content="width=device-width, initial-scale=1.0")
         title Login
-        link(rel="stylesheet", href="css/login.css")
+        link(rel="stylesheet", href="styles/login.css")
     body
-        h1 Login Page
+        h1 Welcome to Python's Aboard
+
         form(action="/login", method="post")
             label(for="username") Username:
             input(type="text", id="username", name="username", required)
@@ -14,5 +16,5 @@ html
             p(style="color: red;") #{error} 
             br
             button(type="submit") Login
-        p Don't have an account? 
+        p Don't have an account?   
             a(href="/register") Register here

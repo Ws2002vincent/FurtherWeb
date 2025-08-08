@@ -61,6 +61,10 @@ const loginRoutes = require('./routes/login')(db);
 const usernameRoutes = require('./routes/username')(db);
 const emailRoutes = require('./routes/email')(db);
 const registerRoutes = require('./routes/register')(db);
+const logoutRoutes = require('./routes/logout');
+const hostRoutes = require('./routes/host')(db);
+const gameroomRoutes = require('./routes/gameroom')(db);
+const joinRoutes = require('./routes/join')(db);
 
 // Use routes
 app.get('/', (req, res) => {
@@ -74,6 +78,16 @@ app.use(function(req, res, next) {
     req.db = db; // Make db available in request object
     next();
 });
+app.use('/logout', logoutRoutes);
+app.get('/dashboard', checkLoggedIn, (req, res) => {
+    res.render('dashboard', { 
+        username: req.session.username,
+        user_id: req.session.user_id
+    });
+});
+app.use('/host', hostRoutes);
+app.use('/gameroom', gameroomRoutes);
+app.use('/join', joinRoutes);
 
 // Server startup script
 app.listen(3000, function() {

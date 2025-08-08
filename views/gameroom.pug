@@ -1,0 +1,117 @@
+html
+    head 
+        title Game Room
+        link(rel="stylesheet", href="/styles/gameroom.css")
+        script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js")
+    body
+        h1 Game Room: #{game_name}
+        div.room-info
+            p Room Code: #{join_code}
+            p#playerCount Players (0/4):
+            
+        div#playersList
+            // Players will be listed here dynamically
+
+        if is_host
+            button#startGame(disabled=true) Start Game
+            p#hostMessage Waiting for players to be ready...
+        else
+            button#readyButton Ready
+            
+        div#gameStatus
+        
+        script.
+            $(document).ready(function() {
+                let playersReady = 0;
+                
+                // Function to update player list
+                function updatePlayerList() {
+                    $.ajax({
+                        url: '/gameroom/players/#{session_id}',
+                        method: 'GET',
+                        success: function(data) {
+                            $('#playersList').empty();
+                            $('#playerCount').text(`Players (${data.players.length}/4):`);
+                            
+                            data.players.forEach(player => {
+                                let readyStatus = player.is_ready ? '(Ready)' : '(Not Ready)';
+                                let hostBadge = player.is_host ? '[Host]' : '';
+                                $('#playersList').append(`<p>${player.username} ${hostBadge} ${readyStatus}</p>`);
+                            });
+                            
+                            // Enable start button if enough players are ready
+                            if (#{is_host}) {
+                                const canStart = data.players.length >= 2 && 
+                                               data.players.length <= 4 && 
+                                               data.players.every(p => p.is_ready || p.is_host);
+                                $('#startGame').prop('disabled', !canStart);
+                                $('#hostMessage').text(canStart ? 'Ready to start!' : 'Waiting for players to be ready...');
+                            }
+                        }
+                    });
+                }
+
+                // Ready button click handler
+                $('#readyButton').click(function() {
+                    $.ajax({
+                        url: '/gameroom/ready',
+                        method: 'POST',
+                        data: { 
+                            session_id: #{session_id},
+                            user_id: #{user_id}
+                        },
+                        success: function(response) {
+                            $('#readyButton').prop('disabled', true);
+                            $('#readyButton').text('Ready!');
+                            updatePlayerList();
+                        }
+                    });
+                });
+
+                // Start game button click handler
+                $('#startGame').click(function() {
+                    $.ajax({
+                        url: '/gameroom/start',
+                        method: 'POST',
+                        data: { session_id: #{session_id} },
+                        success: function(response) {
+                            window.location.href = '/gamesession/' + #{session_id};
+                        }
+                    });
+                });
+
+                // Add window unload handler
+                $(window).on('beforeunload', function() {
+                    $.ajax({
+                        url: '/gameroom/leave',
+                        method: 'POST',
+                        async: false, // Important for proper cleanup
+                        data: { 
+                            session_id: #{session_id},
+                            user_id: #{user_id}
+                        }
+                    });
+                });
+
+                // Modify dashboard link to properly clean up
+                $('a[href="/dashboard"]').click(function(e) {
+                    e.preventDefault();
+                    $.ajax({
+                        url: '/gameroom/leave',
+                        method: 'POST',
+                        data: { 
+                            session_id: #{session_id},
+                            user_id: #{user_id}
+                        },
+                        success: function() {
+                            window.location.href = '/dashboard';
+                        }
+                    });
+                });
+
+                // Poll for updates every 0.5 seconds
+                setInterval(updatePlayerList, 500);
+                updatePlayerList(); // Initial update
+            });
+
+        a(href="/dashboard") Leave Room

@@ -1,0 +1,23 @@
+html 
+    head 
+        title Join Game Room
+        link(rel="stylesheet", href="/styles/joinroom.css")
+    body
+        h1 Join a Game Room
+        
+        if error
+            p.error-message #{error}
+        
+        form(action="/join" method="post")
+            div.form-group
+                label(for="join_code") Enter Room Code:
+                input(type="text" 
+                      id="join_code" 
+                      name="join_code" 
+                      required 
+                      pattern="[A-Z0-9]{5,10}"
+                      title="Room code should be 5-10 characters long and contain only uppercase letters and numbers")
+            
+            button(type="submit") Join Room
+        
+        a(href="/dashboard") Back to Dashboard
