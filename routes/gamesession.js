@@ -139,30 +139,51 @@ module.exports = function(db) {
         const userId = req.session.user_id;
         const endTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
-        // Verify host
+        // First check if user is host
         db.query('SELECT * FROM PlayerSession WHERE session_id = ? AND user_id = ? AND is_host = 1', 
         [sessionId, userId], (err, results) => {
             if (err || results.length === 0) {
                 return res.json({ success: false, error: 'Not authorized' });
             }
 
-            // Update game session
+            // Update game status
             db.query('UPDATE game_session SET status = "completed", end_time = ? WHERE session_id = ?',
             [endTime, sessionId], (err) => {
-                if (err) return res.json({ success: false, error: 'Database error' });
+                if (err) {
+                    console.error('Game session update error:', err);
+                    return res.json({ success: false, error: 'Database error' });
+                }
 
-                // Get final rankings and insert into game history
+                // Insert into game history
                 db.query(`
                     INSERT INTO gamehistory (user_id, session_id, score, rank, played_on)
                     SELECT user_id, session_id, score, current_position, ?
                     FROM PlayerSession
                     WHERE session_id = ?
                 `, [endTime, sessionId], (err) => {
-                    if (err) return res.json({ success: false, error: 'Error saving history' });
+                    if (err) {
+                        console.error('Game history insert error:', err);
+                        return res.json({ success: false, error: 'Error saving history' });
+                    }
                     
-                    res.json({ success: true });
+                    res.json({ 
+                        success: true,
+                        sessionId: sessionId
+                    });
                 });
             });
+        });
+    });
+
+    // Add this after your existing routes, before return router
+    router.get('/status/:sessionId', (req, res) => {
+        const sessionId = req.params.sessionId;
+        
+        db.query(`
+            SELECT status FROM game_session WHERE session_id = ?
+        `, [sessionId], (err, results) => {
+            if (err) return res.status(500).json({ error: 'Database error' });
+            res.json({ status: results[0].status });
         });
     });
 

@@ -126,6 +126,21 @@ html
 
         script.
             $(document).ready(function() {
+                // Update Socket.IO connection
+                const socket = io('http://localhost:3000');
+                const sessionId = '#{sessionId}';
+                let checkGameStatus;
+
+                socket.on('connect', () => {
+                    console.log('Connected to socket server');
+                    socket.emit('joinGame', sessionId);
+                });
+
+                socket.on('redirectToCalculation', (data) => {
+                    console.log('Received redirect signal');
+                    window.location.href = `/calculation/${sessionId}`;
+                });
+
                 let html5QrcodeScanner = null;
                 let currentCardId = null;
 
@@ -210,16 +225,36 @@ html
                     });
                 });
 
+                // Update end game button handler
                 $('#endGameBtn').click(function() {
                     if(confirm('Are you sure you want to end the game?')) {
-                        $.post(`/gamesession/endgame/#{sessionId}`, function(response) {
+                        $.post(`/gamesession/endgame/${sessionId}`, function(response) {
                             if(response.success) {
-                                window.location.href = `/calculation/${sessionId}`;
+                                console.log('Emitting gameEnded event');
+                                socket.emit('gameEnded', sessionId);
+                                setTimeout(() => {
+                                    window.location.href = `/calculation/${sessionId}`;
+                                }, 500);
                             } else {
-                                alert('Error ending game');
+                                alert('Error ending game: ' + (response.error || 'Unknown error'));
                             }
                         });
                     }
+                });
+
+                // Add polling as backup
+                checkGameStatus = setInterval(() => {
+                    $.get(`/gamesession/status/${sessionId}`, function(data) {
+                        if(data.status === 'completed') {
+                            clearInterval(checkGameStatus);
+                            window.location.href = `/calculation/${sessionId}`;
+                        }
+                    });
+                }, 1000);
+
+                // Clear interval when leaving page
+                $(window).on('beforeunload', function() {
+                    clearInterval(checkGameStatus);
                 });
 
                 function updateRankings() {

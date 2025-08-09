@@ -1,0 +1,65 @@
+html
+    head
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        title Game History
+        style.
+            .container {
+                max-width: 800px;
+                margin: 20px auto;
+                padding: 20px;
+            }
+            .history-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+            }
+            .history-table th,
+            .history-table td {
+                padding: 12px;
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+            }
+            .history-table th {
+                background-color: #f5f5f5;
+            }
+            .back-btn {
+                padding: 10px 20px;
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-bottom: 20px;
+            }
+            .rank-1 {
+                background-color: #FFD700;
+            }
+            .rank-2 {
+                background-color: #C0C0C0;
+            }
+            .rank-3 {
+                background-color: #CD7F32;
+            }
+    body
+        .container
+            h1 Game History
+            p Welcome, #{username}
+            button.back-btn(onclick="location.href='/dashboard'") Back to Dashboard
+            
+            if gameHistory && gameHistory.length > 0
+                table.history-table
+                    thead
+                        tr
+                            th Game Name
+                            th Score
+                            th Rank
+                            th Played On
+                    tbody
+                        each game in gameHistory
+                            tr(class=game.rank <= 3 ? `rank-${game.rank}` : '')
+                                td= game.game_name
+                                td= game.score
+                                td ##{game.rank}
+                                td= new Date(game.played_on).toLocaleString()
+            else
+                p No game history available.

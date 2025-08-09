@@ -6,7 +6,6 @@ const mysql = require('mysql2');
 const session = require('express-session');
 const app = express();
 const http = require('http');
-const https = require('https');
 const fs = require('fs');
 
 // Set up body parser middleware to handle form submissions
@@ -71,6 +70,8 @@ const hostRoutes = require('./routes/host')(db);
 const gameroomRoutes = require('./routes/gameroom')(db);
 const joinRoutes = require('./routes/join')(db);
 const gamesessionRoutes = require('./routes/gamesession')(db);
+const calculationRoutes = require('./routes/calculation')(db);
+const viewhistoryRoutes = require('./routes/viewhistory')(db);
 
 // Use routes
 app.get('/', (req, res) => {
@@ -95,17 +96,11 @@ app.use('/host', hostRoutes);
 app.use('/gameroom', gameroomRoutes);
 app.use('/join', joinRoutes);
 app.use('/gamesession', gamesessionRoutes);
+app.use('/calculation', calculationRoutes);
+app.use('/viewhistory', viewhistoryRoutes);
 
 // Create HTTP server
-const httpServer = http.createServer(app);
-
-// Create HTTPS server
-const options = {
-    key: fs.readFileSync('./certificates/key.pem'),
-    cert: fs.readFileSync('./certificates/cert.pem')
-};
-
-const server = https.createServer(options, app);
+const server = http.createServer(app);
 
 // Initialize Socket.IO
 const io = require('socket.io')(server);
@@ -117,30 +112,21 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log('Client disconnected');
     });
-});
 
-// Listen on both HTTP and HTTPS ports
-httpServer.listen(3000, () => {
-    console.log('HTTP Server running on port 3000');
-});
-
-server.listen(3443, () => {
-    console.log('HTTPS Server running on port 3443');
-});
-
-// Socket.IO connection handling
-io.on('connection', (socket) => {
     socket.on('joinGame', (sessionId) => {
+        console.log('Player joined game:', sessionId);
         socket.join(`game${sessionId}`);
     });
 
-    socket.on('playerAnswered', (data) => {
-        io.to(`game${data.sessionId}`).emit('scoreUpdate', {
-            userId: data.userId,
-            username: data.username,
-            newScore: data.newScore
-        });
+    socket.on('gameEnded', (sessionId) => {
+        console.log('Game ended:', sessionId);
+        io.to(`game${sessionId}`).emit('redirectToCalculation', { sessionId });
     });
+});
+
+// Listen on HTTP port
+server.listen(3000, () => {
+    console.log('Server running on port 3000');
 });
 
 // Add error handling middleware
