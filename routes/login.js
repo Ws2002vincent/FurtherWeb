@@ -11,13 +11,17 @@ module.exports = (db) => {
 
     router.post('/', (req, res) => { 
         const { username, password } = req.body;
+
+        // Check if username and password are provided
         if (username && password) {
             db.query('SELECT * FROM users WHERE username = ?', [username], (error, results) => {
                 if (error) return res.status(500).send('Database error');
+
                 if (results.length > 0) {
                     const user = results[0];
                     bcrypt.compare(password, user.hashed_password, (err, match) => {
                         if (err) return res.status(500).send('Error comparing passwords');
+                        
                         if (match) {
                             req.session.loggedin = true;
                             req.session.username = username;

@@ -48,6 +48,7 @@ module.exports = function(db) {
                 WHERE session_id = ? AND user_id = ?
             `;
 
+            // Check if the player is already in the room
             db.query(checkPlayerQuery, [gameSession.session_id, req.session.user_id], (err, playerResults) => {
                 if (err) {
                     return res.render('joinroom', { error: 'Database error occurred' });
@@ -64,6 +65,7 @@ module.exports = function(db) {
                     VALUES (?, ?, false, false)
                 `;
 
+                // Add player to the room
                 db.query(addPlayerQuery, [gameSession.session_id, req.session.user_id], (err) => {
                     if (err) {
                         return res.render('joinroom', { error: 'Failed to join room' });

@@ -26,6 +26,7 @@ module.exports = function(db) {
                     renderRoom();
                 }
 
+                // Render the room
                 function renderRoom() {
                     res.render('gameroom', {
                         room_name: session.game_name,
@@ -86,6 +87,7 @@ module.exports = function(db) {
                 });
             }
 
+            // Check if all players are ready
             const allReady = players
                 .filter(p => p.is_host !== 1)
                 .every(p => p.is_ready === 1);

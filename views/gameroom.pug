@@ -4,25 +4,30 @@ html
         title Game Room
         link(rel="stylesheet", href="/styles/gameroom.css")
         script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js")
+        
     body
         .lobby-container
             .header
                 span.room-id Room ID: #{join_code}
                 span.room-name Game Name: #{game_name}
+
             .player-slots
                 // Player slots will be filled by AJAX
+
             .actions
                 if is_host
                     button#startGame(type="button") Start Game
                 else
                     button#readyBtn(type="button") Ready
                 button#leaveLobby(type="button") Leave Lobby
+
         script.
             $(document).ready(function() {
                 let playerCount = 0;
                 let isPlayerReady = false;
 
                 function updatePlayers() {
+                    // Fetch player data from the server
                     $.get('/gameroom/players/#{session_id}', function(data) {
                         let slotsHtml = '';
                         playerCount = data.players.length;
@@ -36,6 +41,7 @@ html
                             }
                         }
 
+                        // Player slots
                         for (let i = 0; i < 4; i++) {
                             if (data.players[i]) {
                                 const p = data.players[i];
@@ -57,9 +63,12 @@ html
                         }
                     });
                 }
+
+                // Initial player update
                 updatePlayers();
                 setInterval(updatePlayers, 500);
 
+                // Ready button click handler
                 $('#readyBtn').click(function() {
                     const newReadyState = !isPlayerReady;
                     $.post('/gameroom/ready', { 
@@ -73,6 +82,8 @@ html
                         }
                     }.bind(this));
                 });
+
+                // Start game button click handler
                 $('#startGame').click(function() {
                     $.post('/gameroom/start', { session_id: '#{session_id}' }, function(res) {
                         if (res.success) {
@@ -82,6 +93,8 @@ html
                         }
                     });
                 });
+
+                // Leave lobby button click handler
                 $('#leaveLobby').click(function() {
                     window.location.href = '/dashboard';
                 });

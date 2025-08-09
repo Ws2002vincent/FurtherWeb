@@ -8,6 +8,7 @@ function generateJoinCode(length) {
     const codeLength = Math.floor(Math.random() * (10 - 5 + 1)) + 5; // Random length between 5-10
     let code = '';
     
+    // Generate a random code of specified length
     for (let i = 0; i < codeLength; i++) {
         const randomIndex = crypto.randomInt(0, characters.length);
         code += characters[randomIndex];
