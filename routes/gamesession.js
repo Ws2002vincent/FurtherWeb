@@ -54,7 +54,6 @@ module.exports = function(db) {
         const { cardId, sessionId, answer } = req.body;
         const userId = req.session.user_id;
 
-        // First get the question details
         db.query('SELECT * FROM questioncard WHERE card_id = ?', [cardId], (err, questions) => {
             if (err || questions.length === 0) {
                 return res.json({ success: false, error: 'Question not found' });
@@ -64,7 +63,7 @@ module.exports = function(db) {
             const correct = answer.toUpperCase() === question.correct_option.toUpperCase();
             const scoreChange = correct ? question.marks_given : -50;
 
-            // Update player's score
+            // Update player's score and recalculate positions
             db.query(
                 'UPDATE PlayerSession SET score = score + ? WHERE session_id = ? AND user_id = ?',
                 [scoreChange, sessionId, userId],
@@ -74,26 +73,62 @@ module.exports = function(db) {
                         return res.json({ success: false, error: 'Database error' });
                     }
 
-                    // Get updated score
-                    db.query(
-                        'SELECT score FROM PlayerSession WHERE session_id = ? AND user_id = ?',
-                        [sessionId, userId],
-                        (err, results) => {
-                            if (err) {
-                                console.error('Score fetch error:', err);
-                                return res.json({ success: false, error: 'Database error' });
-                            }
-
-                            res.json({
-                                success: true,
-                                correct,
-                                scoreChange,
-                                newScore: results[0].score
-                            });
+                    // Update positions for all players
+                    db.query(`
+                        UPDATE PlayerSession ps1,
+                            (SELECT user_id, 
+                                    @curRank := @curRank + 1 AS position
+                             FROM PlayerSession,
+                                  (SELECT @curRank := 0) r
+                             WHERE session_id = ?
+                             ORDER BY score DESC) ps2
+                        SET ps1.current_position = ps2.position
+                        WHERE ps1.session_id = ?
+                        AND ps1.user_id = ps2.user_id
+                    `, [sessionId, sessionId], (err) => {
+                        if (err) {
+                            console.error('Position update error:', err);
+                            return res.json({ success: false, error: 'Database error' });
                         }
-                    );
+
+                        // Get updated score and position
+                        db.query(
+                            'SELECT score, current_position FROM PlayerSession WHERE session_id = ? AND user_id = ?',
+                            [sessionId, userId],
+                            (err, results) => {
+                                if (err) {
+                                    console.error('Score fetch error:', err);
+                                    return res.json({ success: false, error: 'Database error' });
+                                }
+
+                                res.json({
+                                    success: true,
+                                    correct,
+                                    scoreChange,
+                                    newScore: results[0].score,
+                                    newPosition: results[0].current_position
+                                });
+                            }
+                        );
+                    });
                 }
             );
+        });
+    });
+
+    // Add new route for rankings
+    router.get('/rankings/:sessionId', (req, res) => {
+        const sessionId = req.params.sessionId;
+        
+        db.query(`
+            SELECT ps.current_position, ps.score, u.username 
+            FROM PlayerSession ps
+            JOIN users u ON ps.user_id = u.user_id
+            WHERE ps.session_id = ?
+            ORDER BY ps.current_position ASC
+        `, [sessionId], (err, rankings) => {
+            if (err) return res.status(500).json({ error: 'Database error' });
+            res.json({ rankings });
         });
     });
 

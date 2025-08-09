@@ -24,6 +24,55 @@ html
                 padding: 10px;
                 width: 100%;
             }
+            .rankings-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+            }
+            .rankings-table th, .rankings-table td {
+                border: 1px solid #ddd;
+                padding: 8px;
+            }
+            .rankings-table th {
+                background-color: #f2f2f2;
+                text-align: left;
+            }
+
+            .rankings-container {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: white;
+                padding: 15px;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                max-width: 300px;
+            }
+
+            .rankings-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 10px;
+            }
+
+            .rankings-table th,
+            .rankings-table td {
+                padding: 8px;
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+            }
+
+            .rankings-table tr:nth-child(1) {
+                background-color: #FFD700;
+            }
+
+            .rankings-table tr:nth-child(2) {
+                background-color: #C0C0C0;
+            }
+
+            .rankings-table tr:nth-child(3) {
+                background-color: #CD7F32;
+            }
     body
         .game-container
             h2 Game Session
@@ -38,6 +87,10 @@ html
                 form#answerForm
                     #options
                     button#submitAnswer(type="submit") Submit Answer
+
+        .rankings-container
+            h3 Current Rankings
+            #rankingsList
 
         script.
             $(document).ready(function() {
@@ -118,6 +171,7 @@ html
                                 `Wrong! You lost 50 points!`);
                             $('#questionModal').hide();
                             $('#answerForm')[0].reset();
+                            updateRankings(); // Update rankings immediately after answer
                         } else {
                             alert(response.error || 'Error submitting answer');
                         }
@@ -127,4 +181,27 @@ html
                 function onScanError(error) {
                     console.warn('QR Code scan error:', error);
                 }
+
+                function updateRankings() {
+                    $.get(`/gamesession/rankings/#{sessionId}`, function(data) {
+                        let rankingsHtml = '<table class="rankings-table">';
+                        rankingsHtml += '<tr><th>Position</th><th>Player</th><th>Score</th></tr>';
+                        
+                        data.rankings.forEach(player => {
+                            rankingsHtml += `
+                                <tr>
+                                    <td>#${player.current_position}</td>
+                                    <td>${player.username}</td>
+                                    <td>${player.score}</td>
+                                </tr>
+                            `;
+                        });
+                        
+                        rankingsHtml += '</table>';
+                        $('#rankingsList').html(rankingsHtml);
+                    });
+                }
+
+                setInterval(updateRankings, 1000);
+                updateRankings(); // Initial update
             });
