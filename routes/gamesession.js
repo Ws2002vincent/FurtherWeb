@@ -24,7 +24,8 @@ module.exports = function(db) {
                 sessionId: sessionId,
                 userId: userId,
                 username: results[0].username,
-                score: results[0].score
+                score: results[0].score,
+                is_host: results[0].is_host === 1  // Add this line
             });
         });
     });
@@ -129,6 +130,39 @@ module.exports = function(db) {
         `, [sessionId], (err, rankings) => {
             if (err) return res.status(500).json({ error: 'Database error' });
             res.json({ rankings });
+        });
+    });
+
+    // Add this route after existing routes
+    router.post('/endgame/:sessionId', (req, res) => {
+        const sessionId = req.params.sessionId;
+        const userId = req.session.user_id;
+        const endTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+        // Verify host
+        db.query('SELECT * FROM PlayerSession WHERE session_id = ? AND user_id = ? AND is_host = 1', 
+        [sessionId, userId], (err, results) => {
+            if (err || results.length === 0) {
+                return res.json({ success: false, error: 'Not authorized' });
+            }
+
+            // Update game session
+            db.query('UPDATE game_session SET status = "completed", end_time = ? WHERE session_id = ?',
+            [endTime, sessionId], (err) => {
+                if (err) return res.json({ success: false, error: 'Database error' });
+
+                // Get final rankings and insert into game history
+                db.query(`
+                    INSERT INTO gamehistory (user_id, session_id, score, rank, played_on)
+                    SELECT user_id, session_id, score, current_position, ?
+                    FROM PlayerSession
+                    WHERE session_id = ?
+                `, [endTime, sessionId], (err) => {
+                    if (err) return res.json({ success: false, error: 'Error saving history' });
+                    
+                    res.json({ success: true });
+                });
+            });
         });
     });
 

@@ -73,6 +73,35 @@ html
             .rankings-table tr:nth-child(3) {
                 background-color: #CD7F32;
             }
+
+            #endGameBtn {
+                background: #f44336;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-top: 20px;
+            }
+
+            #scanBtn {
+                background: #2196F3;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-bottom: 20px;
+            }
+
+            .game-container {
+                max-width: 800px;
+                margin: 20px auto;
+                padding: 20px;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            }
     body
         .game-container
             h2 Game Session
@@ -87,6 +116,9 @@ html
                 form#answerForm
                     #options
                     button#submitAnswer(type="submit") Submit Answer
+
+            if is_host
+                button#endGameBtn End Game
 
         .rankings-container
             h3 Current Rankings
@@ -178,9 +210,17 @@ html
                     });
                 });
 
-                function onScanError(error) {
-                    console.warn('QR Code scan error:', error);
-                }
+                $('#endGameBtn').click(function() {
+                    if(confirm('Are you sure you want to end the game?')) {
+                        $.post(`/gamesession/endgame/#{sessionId}`, function(response) {
+                            if(response.success) {
+                                window.location.href = `/calculation/${sessionId}`;
+                            } else {
+                                alert('Error ending game');
+                            }
+                        });
+                    }
+                });
 
                 function updateRankings() {
                     $.get(`/gamesession/rankings/#{sessionId}`, function(data) {
@@ -202,6 +242,11 @@ html
                     });
                 }
 
+                // Initial rankings update and start polling
+                updateRankings();
                 setInterval(updateRankings, 1000);
-                updateRankings(); // Initial update
+
+                function onScanError(error) {
+                    console.warn('QR Code scan error:', error);
+                }
             });
