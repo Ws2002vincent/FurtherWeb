@@ -2,12 +2,14 @@ module.exports = function(db) {
     var express = require('express'); 
     var router = express.Router(); 
 
-    router.get('/checkUsername', function(req, res) { 
-        var username = req.query.username; 
+    router.post('/', function(req, res) { 
+        var username = req.body.username; 
         db.query("SELECT * FROM users WHERE username = ?", [username], function (err, result) { 
-            if (err) throw err; 
-            var exists = result.length > 0; 
-            res.json({ exists: exists }); 
+            if (err) {
+                console.error('Database error:', err);
+                return res.json({ available: false, error: 'Database error' });
+            }
+            res.json({ available: result.length === 0 }); 
         }); 
     }); 
     return router; 
