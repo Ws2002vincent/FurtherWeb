@@ -19,30 +19,59 @@ html
                 button#leaveLobby(type="button") Leave Lobby
         script.
             $(document).ready(function() {
+                let playerCount = 0;
+                let isPlayerReady = false;
+
                 function updatePlayers() {
                     $.get('/gameroom/players/#{session_id}', function(data) {
                         let slotsHtml = '';
+                        playerCount = data.players.length;
+                        
+                        // Update player's ready status
+                        const currentPlayer = data.players.find(p => p.user_id === '#{user_id}');
+                        if (currentPlayer) {
+                            isPlayerReady = currentPlayer.is_ready === 1;
+                            if (!currentPlayer.is_host) {
+                                $('#readyBtn').text(isPlayerReady ? 'Unready' : 'Ready');
+                            }
+                        }
+
                         for (let i = 0; i < 4; i++) {
                             if (data.players[i]) {
                                 const p = data.players[i];
                                 slotsHtml += `<div class="player-slot">
                                     <span>${p.username}</span>
-                                    ${p.is_host ? '<span style="float:right;">Host</span>' : (p.is_ready ? '<span style="float:right;">Ready</span>' : '')}
+                                    ${p.is_host ? '<span style="float:right;">Host</span>' : (p.is_ready ? '<span style="float:right;">Ready</span>' : '<span style="float:right;">Not Ready</span>')}
                                 </div>`;
                             } else {
                                 slotsHtml += `<div class="player-slot"><span>+</span></div>`;
                             }
                         }
                         $('.player-slots').html(slotsHtml);
+
+                        // Update start button state for host
+                        if ('#{is_host}' === 'true') {
+                            const allPlayersReady = data.players.every(p => p.is_host === 1 || p.is_ready === 1);
+                            const validPlayerCount = playerCount >= 2 && playerCount <= 4;
+                            $('#startGame').prop('disabled', !(allPlayersReady && validPlayerCount));
+                        }
                     });
                 }
                 updatePlayers();
                 setInterval(updatePlayers, 500);
 
                 $('#readyBtn').click(function() {
-                    $.post('/gameroom/ready', { session_id: '#{session_id}' }, function(res) {
-                        if(res.success) updatePlayers();
-                    });
+                    const newReadyState = !isPlayerReady;
+                    $.post('/gameroom/ready', { 
+                        session_id: '#{session_id}',
+                        ready_state: newReadyState
+                    }, function(res) {
+                        if(res.success) {
+                            isPlayerReady = newReadyState;
+                            $(this).text(isPlayerReady ? 'Unready' : 'Ready');
+                            updatePlayers();
+                        }
+                    }.bind(this));
                 });
                 $('#startGame').click(function() {
                     $.post('/gameroom/start', { session_id: '#{session_id}' }, function(res) {

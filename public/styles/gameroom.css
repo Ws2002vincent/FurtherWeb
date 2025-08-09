@@ -5,6 +5,7 @@
     padding: 20px;
     border-radius: 10px;
 }
+
 .header {
     background: #f8bcbc;
     padding: 10px;
@@ -13,9 +14,11 @@
     display: flex;
     justify-content: space-between;
 }
+
 .player-slots {
     margin-bottom: 20px;
 }
+
 .player-slot {
     background: #fff;
     margin: 8px 0;
@@ -26,11 +29,13 @@
     justify-content: space-between;
     align-items: center;
 }
+
 .actions {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
+
 button {
     background: #f8bcbc;
     border: none;
@@ -38,4 +43,9 @@ button {
     border-radius: 6px;
     font-size: 1em;
     cursor: pointer;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }

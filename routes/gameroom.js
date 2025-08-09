@@ -42,7 +42,7 @@ module.exports = function(db) {
     // Get player list (AJAX)
     router.get('/players/:sessionId', (req, res) => {
         db.query(
-            'SELECT u.username, ps.is_host, ps.is_ready FROM PlayerSession ps JOIN users u ON ps.user_id = u.user_id WHERE ps.session_id = ? ORDER BY ps.is_host DESC, ps.user_id',
+            'SELECT u.username, ps.user_id, ps.is_host, ps.is_ready FROM PlayerSession ps JOIN users u ON ps.user_id = u.user_id WHERE ps.session_id = ? ORDER BY ps.is_host DESC, ps.user_id',
             [req.params.sessionId],
             (err, results) => {
                 if (err) return res.status(500).json({ error: 'Database error' });
@@ -53,11 +53,16 @@ module.exports = function(db) {
 
     // Player ready
     router.post('/ready', (req, res) => {
-        const { session_id } = req.body;
+        const { session_id, ready_state } = req.body;
         const userId = req.session.user_id;
-        db.query('UPDATE PlayerSession SET is_ready = 1 WHERE session_id = ? AND user_id = ?', [session_id, userId], (err) => {
-            res.json({ success: !err });
-        });
+        const newReadyState = ready_state ? 1 : 0;
+
+        db.query('UPDATE PlayerSession SET is_ready = ? WHERE session_id = ? AND user_id = ?', 
+            [newReadyState, session_id, userId], 
+            (err) => {
+                res.json({ success: !err });
+            }
+        );
     });
 
     // Host start game
@@ -73,21 +78,33 @@ module.exports = function(db) {
                 return res.status(403).json({ success: false, error: 'Only host can start the game' });
             }
 
+            // Check player count
+            if (players.length < 2 || players.length > 4) {
+                return res.json({ 
+                    success: false, 
+                    error: 'Game requires 2-4 players to start' 
+                });
+            }
+
             const allReady = players
                 .filter(p => p.is_host !== 1)
                 .every(p => p.is_ready === 1);
 
             if (allReady) {
-                // Update game status
-                db.query('UPDATE game_session SET status = "active" WHERE session_id = ?', [session_id], (err) => {
-                    if (err) return res.status(500).json({ success: false, error: 'Database error' });
-                    
-                    // Return success with the correct path
-                    res.json({ 
-                        success: true, 
-                        redirect: `/gamesession/${session_id}`  // Make sure this matches your route
-                    });
-                });
+                db.query('UPDATE game_session SET status = "active" WHERE session_id = ?', 
+                    [session_id], 
+                    (err) => {
+                        if (err) return res.status(500).json({ 
+                            success: false, 
+                            error: 'Database error' 
+                        });
+                        
+                        res.json({ 
+                            success: true, 
+                            redirect: `/gamesession/${session_id}`
+                        });
+                    }
+                );
             } else {
                 res.json({ success: false, error: 'Not all players are ready' });
             }
