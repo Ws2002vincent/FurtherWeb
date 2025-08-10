@@ -1,3 +1,141 @@
+/* Base variables */
+:root {
+    --primary-color: #4CAF50;
+    --secondary-color: #ffb6b6;
+    --text-color: #333;
+    --button-hover: #45a049;
+    --button-width: 200px;
+    --container-width: 90%;
+}
+
+/* Base styles */
 body {
-    
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    overflow-y: hidden;
+    background-image: url('../images/dashboard.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+.container {
+    width: var(--container-width);
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+h1 {
+    color: var(--text-color);
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+p {
+    color: var(--text-color);
+    font-size: 1.1rem;
+    margin: 10px 0;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 30px;
+    width: 100%;
+    align-items: center;
+}
+
+button {
+    width: var(--button-width);
+    padding: 15px 0;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+button:hover {
+    background-color: var(--button-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+button[onclick*="logout"] {
+    background-color: #f44336;
+    margin-top: 20px;
+}
+
+button[onclick*="logout"]:hover {
+    background-color: #da190b;
+}
+
+/* Tablet (768px and up) */
+@media (min-width: 768px) {
+    :root {
+        --button-width: 250px;
+        --container-width: 80%;
+    }
+
+    .button-container {
+        gap: 20px;
+    }
+
+    h1 {
+        font-size: 3rem;
+    }
+
+    p {
+        font-size: 1.2rem;
+    }
+}
+
+/* Desktop (1024px and up) */
+@media (min-width: 1024px) {
+    :root {
+        --button-width: 300px;
+        --container-width: 70%;
+    }
+
+    .button-container {
+        gap: 25px;
+    }
+
+    button {
+        font-size: 1.2rem;
+    }
+}
+
+/* Mobile (under 768px) */
+@media (max-width: 767px) {
+    :root {
+        --button-width: 90%;
+        --container-width: 95%;
+    }
+
+    body {
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    p {
+        font-size: 1rem;
+    }
+
+    .button-container {
+        gap: 12px;
+    }
 }
