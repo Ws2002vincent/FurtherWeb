@@ -18,6 +18,7 @@ module.exports = function(db) {
                 return res.status(500).send('Database error');
             }
 
+            // Render the game history page
             res.render('gamehistory', {
                 username: req.session.username,
                 gameHistory: results

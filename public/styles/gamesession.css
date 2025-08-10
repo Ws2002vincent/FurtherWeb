@@ -1,64 +1,252 @@
-.game-container {
-    max-width: 400px;
-    margin: 20px auto;
-    background-color: #f0f0f0;
-    border-radius: 10px;
-    min-height: 80vh;
-    display: flex;
-    flex-direction: column;
-}
-
-.header {
-    background-color: #ffb6b6;
-    padding: 15px;
-    border-radius: 10px 10px 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.player-info {
-    flex-grow: 1;
-}
-
-.player-name {
+body {
     margin: 0;
-    color: #333;
+    padding: 0;
+    background-image: url('../images/try.jpg');
+    background-size: cover;
 }
 
-.score {
-    margin: 5px 0;
-    font-size: 16px;
+/* Base variables */
+:root {
+    --primary-color: #4CAF50;
+    --secondary-color: #ffb6b6;
+    --background-color: #f0f0f0;
+    --text-color: #333;
+    --gold: #FFD700;
+    --silver: #C0C0C0;
+    --bronze: #CD7F32;
 }
 
-.main-content {
-    padding: 20px;
-    flex-grow: 1;
+/* Base container */
+.game-container {
+    text-align: center;
+    background-color: var(--background-color);
+    border-radius: 30px;
+    padding-bottom: 50px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-size: 25px;
 }
 
-.scan-button {
-    width: 80%;
+/* Buttons */
+#scanBtn {
+    width: 70%;
     padding: 15px;
-    margin: 10px 0;
+    margin: 10px auto;
     background-color: #fff;
-    border: 1px solid #ddd;
+    border: 2px solid #ddd;
     border-radius: 5px;
     font-size: 16px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
-.end-button {
-    width: 80%;
+#scanBtn:hover {
+    background-color: #f0f0f0;
+    border-color: #ccc;
+}
+
+#endGameBtn {
+    width: 70%;
     padding: 15px;
-    margin: 10px 0;
-    background-color: #4CAF50;
+    margin: 0 auto;
+    background-color: var(--primary-color);
+    color: white;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#endGameBtn:hover {
+    background-color: darkgreen;
+    border: #333;
+}
+
+/* Submit Answer Button */
+#submitAnswer {
+    width: 200px;
+    padding: 12px 24px;
+    margin: 20px auto;
+    display: block;
+    background-color: var(--primary-color);
     color: white;
     border: none;
     border-radius: 5px;
     font-size: 16px;
     cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#submitAnswer:hover {
+    background-color: #3d8b40;
+    transform: translateY(-2px);
+}
+
+/* Question Modal */
+.question-modal {
+    display: none;
+    position: fixed;
+    text-align: center;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    z-index: 1000;
+    width: 100%;
+    max-width: 500px;
+}
+
+.question-modal form {
+    display: grid;
+    flex-direction: column;
+    align-items: center;
+    width: 80%;
+    margin: 0 auto;
+}
+
+/* Rankings */
+.rankings-container {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.rankings-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.rankings-table th,
+.rankings-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.rankings-table tr:nth-child(1) { background-color: #ffb6b6; }
+.rankings-table tr:nth-child(2) { background-color: var(--gold); }
+.rankings-table tr:nth-child(3) { background-color: var(--silver); }
+.rankings-table tr:nth-child(4) { background-color: var(--bronze); }
+.rankings-table tr:nth-child(5) { background-color: #dffff1; }
+
+/* Mobile toggle button */
+.toggle-rankings-btn {
+    display: none;  /* Hidden by default, shown on mobile */
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--primary-color);
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    cursor: pointer;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.toggle-rankings-btn i {
+    font-size: 24px;
+    margin-bottom: 2px;
+}
+
+.toggle-rankings-btn span {
+    font-size: 12px;
+}
+
+.toggle-rankings-btn:hover {
+    transform: scale(1.05);
+    background: var(--primary-color-dark);
+}
+
+@media (min-width: 768px) {
+    /* Tablet and Desktop */
+    .rankings-container {
+        display: none;  /* Start hidden on all devices */
+        position: fixed;
+        top: 90px;     /* Position below toggle button */
+        right: 20px;
+        width: 300px;
+        z-index: 999;
+    }
+
+    .toggle-rankings-btn {
+        display: flex !important;  /* Always show on desktop/tablet */
+        position: fixed;
+        top: 20px;     /* Position at top */
+        right: 20px;
+        bottom: auto;  /* Override mobile bottom positioning */
+    }
+
+    .game-container {
+        margin: 20px auto;
+        padding: 20px;
+        width: calc(100% - 40px);
+        max-width: 1200px;
+    }
+}
+
+@media (max-width: 767px) {
+    /* Mobile */
+    .game-container {
+        margin: 10px;
+        max-width: 100%;
+        text-align: center;
+        margin-top: 30px;
+        font-size: 20px;
+        padding: 10px;
+    }
+
+    .rankings-container {
+        display: none;
+        position: fixed;
+        bottom: 90px;
+        right: 10px;
+        left: 10px;
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+
+    .toggle-rankings-btn {
+        display: flex;
+    }
+
+    .question-modal {
+        width: 70%;
+        padding: 15px;
+    }
+}
+
+/* QR Reader */
+#reader {
+    margin: 20px auto;
+    max-width: 100%;
+    font-size: 16px;
+}
+
+/* Question options */
+.option {
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.option:hover {
+    background-color: #f5f5f5;
 }

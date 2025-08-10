@@ -2,112 +2,19 @@ html
     head
         meta(name="viewport", content="width=device-width, initial-scale=1.0")
         title Game Session
+        link(rel="stylesheet", href="/styles/gamesession.css")
         script(src="https://cdn.socket.io/4.7.4/socket.io.min.js")
         script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js")
         script(src="https://unpkg.com/html5-qrcode@2.3.8")
-        style.
-            .question-modal {
-                display: none;
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: white;
-                padding: 20px;
-                border-radius: 8px;
-                box-shadow: 0 0 10px rgba(0,0,0,0.2);
-                z-index: 1000;
-            }
-            .option-btn {
-                display: block;
-                margin: 10px 0;
-                padding: 10px;
-                width: 100%;
-            }
-            .rankings-table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 20px;
-            }
-            .rankings-table th, .rankings-table td {
-                border: 1px solid #ddd;
-                padding: 8px;
-            }
-            .rankings-table th {
-                background-color: #f2f2f2;
-                text-align: left;
-            }
-
-            .rankings-container {
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: white;
-                padding: 15px;
-                border-radius: 8px;
-                box-shadow: 0 0 10px rgba(0,0,0,0.1);
-                max-width: 300px;
-            }
-
-            .rankings-table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 10px;
-            }
-
-            .rankings-table th,
-            .rankings-table td {
-                padding: 8px;
-                text-align: left;
-                border-bottom: 1px solid #ddd;
-            }
-
-            .rankings-table tr:nth-child(1) {
-                background-color: #FFD700;
-            }
-
-            .rankings-table tr:nth-child(2) {
-                background-color: #C0C0C0;
-            }
-
-            .rankings-table tr:nth-child(3) {
-                background-color: #CD7F32;
-            }
-
-            #endGameBtn {
-                background: #f44336;
-                color: white;
-                padding: 10px 20px;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-                margin-top: 20px;
-            }
-
-            #scanBtn {
-                background: #2196F3;
-                color: white;
-                padding: 10px 20px;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-                margin-bottom: 20px;
-            }
-
-            .game-container {
-                max-width: 800px;
-                margin: 20px auto;
-                padding: 20px;
-                background: white;
-                border-radius: 8px;
-                box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            }
+        script(src="https://kit.fontawesome.com/your-kit-code.js" crossorigin="anonymous")
+    
     body
         .game-container
             h2 Game Session
             p Player: #{username}
             p Score: #[span#playerScore #{score}]
-            
+            p Please scan the QR code to answer the question.
+
             button#scanBtn Scan Question Card
             #reader
 
@@ -119,6 +26,10 @@ html
 
             if is_host
                 button#endGameBtn End Game
+
+        button#toggleRankings.toggle-rankings-btn
+            i.fas.fa-trophy
+            span Rankings
 
         .rankings-container
             h3 Current Rankings
@@ -284,4 +195,40 @@ html
                 function onScanError(error) {
                     console.warn('QR Code scan error:', error);
                 }
+
+                // Initialize rankings visibility
+                let rankingsVisible = false;
+                if (window.innerWidth >= 768) {
+                    $('.rankings-container').show();
+                    rankingsVisible = true;
+                    $('#toggleRankings').hide();
+                } else {
+                    $('.rankings-container').hide();
+                    $('#toggleRankings').show();
+                }
+
+                // Toggle rankings handler
+                $('#toggleRankings').click(function() {
+                    rankingsVisible = !rankingsVisible;
+                    $('.rankings-container').slideToggle();
+                    $(this).html(
+                        rankingsVisible ? 
+                        '<i class="fas fa-times"></i><span>Close</span>' : 
+                        '<i class="fas fa-trophy"></i><span>Rankings</span>'
+                    );
+                });
+
+                // Handle window resize
+                $(window).resize(function() {
+                    if (window.innerWidth >= 768) {
+                        $('.rankings-container').show();
+                        rankingsVisible = true;
+                        $('#toggleRankings').hide();
+                    } else {
+                        if (!rankingsVisible) {
+                            $('.rankings-container').hide();
+                        }
+                        $('#toggleRankings').show();
+                    }
+                });
             });
