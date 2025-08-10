@@ -137,7 +137,14 @@ module.exports = function(db) {
     router.post('/endgame/:sessionId', (req, res) => {
         const sessionId = req.params.sessionId;
         const userId = req.session.user_id;
-        const endTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        
+        // Fix: Get current time in local timezone
+        const now = new Date();
+        const offset = now.getTimezoneOffset();
+        const endTime = new Date(now.getTime() - (offset * 60 * 1000))
+            .toISOString()
+            .slice(0, 19)
+            .replace('T', ' ');
 
         // First check if user is host
         db.query('SELECT * FROM PlayerSession WHERE session_id = ? AND user_id = ? AND is_host = 1', 
@@ -146,7 +153,7 @@ module.exports = function(db) {
                 return res.json({ success: false, error: 'Not authorized' });
             }
 
-            // Update game status
+            // Update game status with correct time
             db.query('UPDATE game_session SET status = "completed", end_time = ? WHERE session_id = ?',
             [endTime, sessionId], (err) => {
                 if (err) {
@@ -154,7 +161,7 @@ module.exports = function(db) {
                     return res.json({ success: false, error: 'Database error' });
                 }
 
-                // Insert into game history
+                // Insert into game history with correct time
                 db.query(`
                     INSERT INTO gamehistory (user_id, session_id, score, rank, played_on)
                     SELECT user_id, session_id, score, current_position, ?

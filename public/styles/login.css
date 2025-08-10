@@ -3,6 +3,7 @@ body {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
+    background-image: linear-gradient(to bottom, #f9f9f9, #f7f5f9, #f8f1f7, #f9edf4, #fce8ee, #fbe7ed, #fbe7ed, #fae6ec, #f6e9f0, #f3ecf2, #f1eff2, #f1f1f1);
 }
 
 h1 {

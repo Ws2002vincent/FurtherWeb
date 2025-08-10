@@ -3,12 +3,16 @@ body {
     padding: 0;
     font-family: Arial, sans-serif;
     text-align: center;
+    background-image: url("/images/host.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
 h1 {
     text-align: center;
     font-size: 25px;
     margin-top: 150px;
+    color: black;
 }
 
 p {
@@ -73,6 +77,7 @@ button:hover {
 @media (min-width: 768px) {
     h1 {
         font-size: 32px;
+        color: white;
     }
 
     p, a {
@@ -94,6 +99,7 @@ button:hover {
 @media (min-width: 992px) {
     h1 {
         font-size: 35px;
+        color: white;
     }
 
     p, a {

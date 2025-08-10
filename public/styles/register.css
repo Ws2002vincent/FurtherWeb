@@ -3,6 +3,7 @@ body {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
+    background-image: radial-gradient(circle, #e1e1e1, #d8d8d8, #d0d0d0, #c7c7c7, #bfbfbf);
 }
 
 h1 {
