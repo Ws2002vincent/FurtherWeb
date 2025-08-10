@@ -31,6 +31,12 @@ html
             i.fas.fa-trophy
             span Rankings
 
+        audio#bgMusic(src="/audio/session.mp3" loop)
+
+        button#toggleAudio.toggle-audio-btn
+            i.fas.fa-volume-up
+            span Audio
+
         .rankings-container
             h3 Current Rankings
             #rankingsList
@@ -229,6 +235,36 @@ html
                             $('.rankings-container').hide();
                         }
                         $('#toggleRankings').show();
+                    }
+                });
+
+                let audioPlaying = true;
+                const bgMusic = document.getElementById('bgMusic');
+
+                bgMusic.play().catch(function(error) {
+                    console.log("Audio autoplay failed:", error);
+                    // Modern browsers require user interaction before playing audio
+                    audioPlaying = false;
+                    $('#toggleAudio').html('<i class="fas fa-volume-mute"></i><span>Audio</span>');
+                });
+
+                $('#toggleAudio').click(function() {
+                    audioPlaying = !audioPlaying;
+                    if (audioPlaying) {
+                        bgMusic.play();
+                        $(this).html('<i class="fas fa-volume-up"></i><span>Audio</span>');
+                    } else {
+                        bgMusic.pause();
+                        $(this).html('<i class="fas fa-volume-mute"></i><span>Audio</span>');
+                    }
+                });
+
+                // Handle page visibility change to manage audio
+                document.addEventListener('visibilitychange', function() {
+                    if (document.hidden && audioPlaying) {
+                        bgMusic.pause();
+                    } else if (!document.hidden && audioPlaying) {
+                        bgMusic.play();
                     }
                 });
             });

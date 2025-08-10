@@ -173,6 +173,39 @@ body {
     background: var(--primary-color-dark);
 }
 
+.toggle-audio-btn {
+    position: fixed;
+    background: var(--primary-color);
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    cursor: pointer;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.toggle-audio-btn i {
+    font-size: 24px;
+    margin-bottom: 2px;
+}
+
+.toggle-audio-btn span {
+    font-size: 12px;
+}
+
+.toggle-audio-btn:hover {
+    transform: scale(1.05);
+    background: var(--primary-color-dark);
+}
+
 @media (min-width: 768px) {
     /* Tablet and Desktop */
     .rankings-container {
@@ -196,7 +229,12 @@ body {
         margin: 20px auto;
         padding: 20px;
         width: calc(100% - 40px);
-        max-width: 1200px;
+        max-width: 1100px;
+    }
+
+    .toggle-audio-btn {
+        top: 20px;
+        right: 90px; /* Position next to rankings button */
     }
 }
 
@@ -228,6 +266,11 @@ body {
     .question-modal {
         width: 70%;
         padding: 15px;
+    }
+
+    .toggle-audio-btn {
+        bottom: 20px;
+        right: 90px; /* Position next to rankings button */
     }
 }
 
