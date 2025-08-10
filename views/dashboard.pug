@@ -3,8 +3,13 @@ html
         meta(name="viewport", content="width=device-width, initial-scale=1.0")
         title Python's Aboard
         link(rel="stylesheet", href="styles/dashboard.css")
+        script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js")
 
     body
+        audio#bgMusic(src="/audio/dashboard.mp3" loop)
+        button#audioToggle.audio-toggle
+            i.fas.fa-volume-up
+
         .container
             h1 Welcome to Python's Aboard!
             
@@ -15,3 +20,38 @@ html
                 button(type="button" onclick="location.href='/join'") Join Game
                 button(type="button" onclick="location.href='/viewhistory'") Game History
                 button(type="button" onclick="location.href='/logout'") Logout
+
+        script(src="https://kit.fontawesome.com/your-kit-code.js")
+        script.
+            $(document).ready(function() {
+                const bgMusic = document.getElementById('bgMusic');
+                let isPlaying = true;
+
+                // Try to play music when page loads
+                bgMusic.play().catch(function(error) {
+                    console.log("Audio autoplay prevented:", error);
+                    isPlaying = false;
+                    $('#audioToggle i').removeClass('fa-volume-up').addClass('fa-volume-mute');
+                });
+
+                // Toggle music on/off
+                $('#audioToggle').click(function() {
+                    if (isPlaying) {
+                        bgMusic.pause();
+                        $(this).find('i').removeClass('fa-volume-up').addClass('fa-volume-mute');
+                    } else {
+                        bgMusic.play();
+                        $(this).find('i').removeClass('fa-volume-mute').addClass('fa-volume-up');
+                    }
+                    isPlaying = !isPlaying;
+                });
+
+                // Handle page visibility change
+                document.addEventListener('visibilitychange', function() {
+                    if (document.hidden && isPlaying) {
+                        bgMusic.pause();
+                    } else if (!document.hidden && isPlaying) {
+                        bgMusic.play();
+                    }
+                });
+            });

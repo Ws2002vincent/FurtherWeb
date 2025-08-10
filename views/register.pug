@@ -18,10 +18,9 @@ html
 
             label(for="password") Password:
             input(type="password", id="password", name="password", required)
-            br
+            p#passwordFeedback
 
             button#registerBtn(type="submit" disabled) Register
-            br
             button(type="reset") Reset
 
             p#usernameFeedback
@@ -32,3 +31,4 @@ html
 
         script(src="js/checkUsername.js")
         script(src="js/checkEmail.js")
+        script(src="js/checkPassword.js")

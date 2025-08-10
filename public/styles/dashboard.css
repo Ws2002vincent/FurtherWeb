@@ -80,6 +80,33 @@ button[onclick*="logout"]:hover {
     background-color: #da190b;
 }
 
+.audio-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.audio-toggle:hover {
+    transform: scale(1.1);
+    background: var(--button-hover);
+}
+
+.audio-toggle i {
+    font-size: 1.2rem;
+}
+
 /* Tablet (768px and up) */
 @media (min-width: 768px) {
     :root {

@@ -1,9 +1,10 @@
 $(document).ready(function() {
-    let usernameValid = false;
-    let emailValid = true; // Will be managed by checkEmail.js
+    window.usernameValid = false;  // Make it global
 
     function updateRegisterButton() {
-        $('#registerBtn').prop('disabled', !(usernameValid && emailValid));
+        const emailValid = window.emailValid || false;
+        const passwordValid = window.passwordValid || false;
+        $('#registerBtn').prop('disabled', !(window.usernameValid && emailValid && passwordValid));
     }
 
     $('#username').on('input', function() {
@@ -16,23 +17,23 @@ $(document).ready(function() {
                 success: function(response) {
                     if (response.available) {
                         $('#usernameFeedback').text('Username is available').css('color', 'green');
-                        usernameValid = true;
+                        window.usernameValid = true;
                     } else {
                         $('#usernameFeedback').text('Username is taken').css('color', 'red');
-                        usernameValid = false;
+                        window.usernameValid = false;
                     }
                     updateRegisterButton();
                 },
                 error: function(xhr, status, error) {
                     console.error('Error:', error);
                     $('#usernameFeedback').text('Error checking username').css('color', 'red');
-                    usernameValid = false;
+                    window.usernameValid = false;
                     updateRegisterButton();
                 }
             });
         } else {
             $('#usernameFeedback').text('');
-            usernameValid = false;
+            window.usernameValid = false;
             updateRegisterButton();
         }
     });
